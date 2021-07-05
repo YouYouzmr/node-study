@@ -1,0 +1,2 @@
+* 任何一个await语句后面的Promise对象变为reject状态，那么整个async函数都会中断执行
+* async函数返回的Promise对象，必须等到内部所有await命令后面的Promise对象执行完成，才会发生状态改变，除非遇到return语句或者跑出错误。也就是说，只有async函数内部的异步操作执行完，才会执行then方法指定的回调函数
