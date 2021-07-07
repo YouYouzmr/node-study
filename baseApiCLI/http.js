@@ -20,7 +20,10 @@ const server = http.createServer((req, res)=> {
             } 
             res.statusCode = 200
             res.setHeader("Content-Type", 'text/html')
-            res.end(data)
+
+            let reader = fs.createReadStream('./index.html', {encoding: 'utf8'})
+            reader.pipe(res)
+            // res.end(data)
         })
     } else if(url==='/users' && method ==='GET'){
         res.writeHead(200, {"Content-Type": "application/json"})
@@ -30,13 +33,28 @@ const server = http.createServer((req, res)=> {
     }
     // 所有图片请求
     else if(method==='GET' && headers.accept.indexOf('image/*')!==-1){
-        // 获取文件状态 pipe没显示原因没找到
-        // let reader = fs.createReadStream('.'+url, {encoding: 'utf8'})
-        // reader.pipe(res, {end: false})
-        // reader.writeStream
-        fs.readFile('.'+url, (err, data)=> {
-            res.end(data)
+        // 判断当前文件是否存在 pipe 实现页面显式图片
+        fs.stat('.'+url, (err, stats) => {
+            if(err || !stats.isFile()) {
+                res.writeHead(404)
+                res.end('not fount '+url)
+                return
+            }
+        
+            // 判断是否是文件
+            if(stats.isFile()) {
+                // res.writeHead(200, {"Content-Type": 'application/octet-stream"'})
+                let reader = fs.createReadStream('.'+url)
+                reader.pipe(res)
+            } else {
+                res.end(`${url} not fount`)
+            }
         })
+        
+        // 获取文件状态 
+        // fs.readFile('.'+url, (err, data)=> {
+        //     res.end(data)
+        // })
     }else {
         res.statusCode = 404
         res.setHeader("Content-Type", 'text/html')
@@ -44,7 +62,7 @@ const server = http.createServer((req, res)=> {
     }
 })
 
-server.listen(3000)
+server.listen(3000, 'localhost')
 
 // 打印原型
 function getPrototypeChain(obj) {
