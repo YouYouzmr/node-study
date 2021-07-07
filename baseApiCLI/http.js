@@ -1,5 +1,6 @@
 const fs = require('fs')
 const http = require('http')
+
 const server = http.createServer((req, res)=> {
     // console.log(getPrototypeChain(res))
     /**
@@ -8,7 +9,6 @@ const server = http.createServer((req, res)=> {
      */
     // console.log('this is a req')
     // res.end('hello node')
-
     const {url, method, headers} = req
 
     if(url==='/' && method==='GET') {
@@ -22,7 +22,6 @@ const server = http.createServer((req, res)=> {
             res.setHeader("Content-Type", 'text/html')
             res.end(data)
         })
-        console.log('main')
     } else if(url==='/users' && method ==='GET'){
         res.writeHead(200, {"Content-Type": "application/json"})
         res.end(JSON.stringify({
@@ -31,9 +30,13 @@ const server = http.createServer((req, res)=> {
     }
     // 所有图片请求
     else if(method==='GET' && headers.accept.indexOf('image/*')!==-1){
-        // url = img.png
-        console.log(url)
-        fs.createReadStream('.'+url).pipe(res)
+        // 获取文件状态 pipe没显示原因没找到
+        // let reader = fs.createReadStream('.'+url, {encoding: 'utf8'})
+        // reader.pipe(res, {end: false})
+        // reader.writeStream
+        fs.readFile('.'+url, (err, data)=> {
+            res.end(data)
+        })
     }else {
         res.statusCode = 404
         res.setHeader("Content-Type", 'text/html')
